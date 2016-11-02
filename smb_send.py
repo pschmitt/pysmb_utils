@@ -3,11 +3,10 @@
 
 
 from __future__ import print_function
-from smb.SMBHandler import SMBHandler
-import urllib
+from easypysmb import EasyPySMB
 import argparse
-import ntpath
 import logging
+import os
 
 
 logging.basicConfig(level=logging.DEBUG)
@@ -29,17 +28,16 @@ if __name__ == '__main__':
         help='Destination (where to put the file)'
     )
     args = parser.parse_args()
-    dest_path = ntpath.join(args.DEST, ntpath.basename(args.FILE.name))
+    dest_path = os.path.join(args.DEST, os.path.basename(args.FILE.name))
     logger.info('Transfering {} to {}'.format(args.FILE.name, dest_path))
 
     url = 'smb://{};{}:{}@{}/{}'.format(
-        urllib.parse.quote(args.domain, safe=''),
-        urllib.parse.quote(args.username, safe=''),
-        urllib.parse.quote(args.password, safe=''),
-        urllib.parse.quote(args.host, safe=''),
+        args.domain,
+        args.username,
+        args.password,
+        args.host,
         dest_path
     )
 
-    director = urllib.request.build_opener(SMBHandler)
-    fh = director.open(url, data=args.FILE)
-    fh.close()
+    e = EasyPySMB(url)
+    e.store_file(args.FILE)

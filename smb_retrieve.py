@@ -3,8 +3,7 @@
 
 
 from __future__ import print_function
-from smb.SMBHandler import SMBHandler
-import urllib
+from easypysmb import EasyPySMB
 import argparse
 import ntpath
 
@@ -24,19 +23,16 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     url = 'smb://{};{}:{}@{}/{}'.format(
-            urllib.parse.quote(args.domain, safe=''),
-            urllib.parse.quote(args.username, safe=''),
-            urllib.parse.quote(args.password, safe=''),
-            urllib.parse.quote(args.host, safe=''),
-            args.PATH
+        args.domain,
+        args.username,
+        args.password,
+        args.host,
+        args.PATH
     )
 
-    director = urllib.request.build_opener(SMBHandler)
-    fh = director.open(url)
+    e = EasyPySMB(url)
 
-    outfile = args.DEST if args.DEST else ntpath.basename(args.PATH)
+    outfilename = args.DEST if args.DEST else ntpath.basename(args.PATH)
 
-    with open(outfile, 'wb') as out:
-        for line in fh:
-            out.write(line)
-    fh.close()
+    with open(outfilename, 'wb') as out:
+        e.retrieve_file(file_obj=out)
